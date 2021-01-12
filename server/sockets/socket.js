@@ -15,16 +15,18 @@ io.on('connection', (client) => {
         client.join(usuario.sala);
         usuarios.agregarPersona(client.id, usuario.nombre, usuario.sala);
         client.broadcast.to(usuario.sala).emit('listaPersonas', usuarios.getPersonasPorSala(usuario.sala));
-
+        client.broadcast.to(usuario.sala).emit('crearMensaje', crearMensaje('ADMIN', `${usuario.nombre} unió al chat.`));
         callback(usuarios.getPersonasPorSala(usuario.sala));
 
     });
 
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
         
         const persona = usuarios.getPersona(client.id);
         const mensaje = crearMensaje(persona.nombre, data.mensaje);
         client.broadcast.to(persona.sala).emit('crearMensaje', mensaje);
+
+        callback({ mensaje });
         
     });
 
